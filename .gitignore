@@ -173,4 +173,7 @@ dist
 # Ignore code-workspaces
 *.code-workspace
 
+# Ignore HARDHAT Config
+hardhat.config.js
+
 # End of https://www.toptal.com/developers/gitignore/api/solidity,linux,visualstudiocode
