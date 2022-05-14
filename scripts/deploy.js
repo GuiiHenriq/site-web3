@@ -6,7 +6,7 @@ const main = async () => {
 
   await waveContract.deployed();
 
-  console.log("Endereço do WavePortal: ", waveContract.address);
+  console.log("Address Contract: ", waveContract.address);
 };
 
 const runMain = async () => {

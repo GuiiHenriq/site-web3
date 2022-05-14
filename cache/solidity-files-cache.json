@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/guiihenrique/Documents/smart-contract/contracts/WavePortal.sol": {
-      "lastModificationDate": 1652543426771,
-      "contentHash": "87c633326768c157bef3df4528b4ea72",
+      "lastModificationDate": 1652546610556,
+      "contentHash": "66088b7a1e3aaca8789b6f40d9236356",
       "sourceName": "contracts/WavePortal.sol",
       "solcConfig": {
         "version": "0.8.0",

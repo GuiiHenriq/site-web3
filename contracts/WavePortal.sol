@@ -6,10 +6,6 @@ import "hardhat/console.sol";
 
 contract WavePortal {
     uint256 totalWaves;
-
-    /*
-     * Utilizaremos isso abaixo para gerar um número randômico
-     */
     uint256 private seed;
 
     event NewWave(address indexed from, uint256 timestamp, string message);
@@ -22,43 +18,44 @@ contract WavePortal {
 
     Wave[] waves;
 
+    // Este é um endereço => uint mapping, o que significa que eu posso associar o endereço com um número!
+    // Neste caso, armazenarei o endereço com o último horário que o usuário mensagem.
+    mapping(address => uint256) public lastWavedAt;
+
     constructor() payable {
-        console.log("Contrato no ar!");
-        /*
-         * Define a semente inicial
-         */
+        console.log("Contract built!");
+        // Define a semente inicial
         seed = (block.timestamp + block.difficulty) % 100;
     }
 
     function wave(string memory _message) public {
+        // Precisamos garantir que o valor corrente de timestamp é ao menos 30 segundos maior que o último timestamp armazenado
+        require(
+            lastWavedAt[msg.sender] + 30 seconds < block.timestamp,
+            "You must wait 30 seconds before sending another message."
+        );
+
+        // Atualiza o timestamp atual do usuário
+        lastWavedAt[msg.sender] = block.timestamp;
+
         totalWaves += 1;
-        console.log("%s tchauzinhou!", msg.sender);
+        console.log("%s message!", msg.sender);
 
         waves.push(Wave(msg.sender, _message, block.timestamp));
 
-        /*
-         * Gera uma nova semente para o próximo que mandar um tchauzinho
-         */
+        // Gera uma nova semente para o próximo usuário que mandar mensagem
         seed = (block.difficulty + block.timestamp + seed) % 100;
 
-        console.log("# randomico gerado: %d", seed);
-
-        /*
-         * Dá 50%  de chance do usuário ganhar o prêmio.
-         */
         if (seed <= 50) {
-            console.log("%s ganhou!", msg.sender);
+            console.log("%s win!", msg.sender);
 
-            /*
-             * O mesmo código que tínhamos anteriormente para enviar o prêmio.
-             */
             uint256 prizeAmount = 0.0001 ether;
             require(
                 prizeAmount <= address(this).balance,
-                "Tentando sacar mais dinheiro que o contrato possui."
+                "The contract does not have this value."
             );
             (bool success, ) = (msg.sender).call{value: prizeAmount}("");
-            require(success, "Falhou em sacar dinheiro do contrato.");
+            require(success, "Failed to withdraw money.");
         }
 
         emit NewWave(msg.sender, block.timestamp, _message);
