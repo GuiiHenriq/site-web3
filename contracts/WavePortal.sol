@@ -7,20 +7,28 @@ import "hardhat/console.sol";
 contract WavePortal {
     uint256 totalWaves;
 
+    /*
+     * Utilizaremos isso abaixo para gerar um número randômico
+     */
+    uint256 private seed;
+
     event NewWave(address indexed from, uint256 timestamp, string message);
 
     struct Wave {
-        address waver; // Endereço do usuário que deu tchauzinho
-        string message; // Mensagem que o usuário envio
-        uint256 timestamp; // Data/hora de quando o usuário tchauzinhou.
+        address waver;
+        string message;
+        uint256 timestamp;
     }
 
     Wave[] waves;
-    
-    constructor() payable {
-        console.log("My first smart contract!!");
-    }
 
+    constructor() payable {
+        console.log("Contrato no ar!");
+        /*
+         * Define a semente inicial
+         */
+        seed = (block.timestamp + block.difficulty) % 100;
+    }
 
     function wave(string memory _message) public {
         totalWaves += 1;
@@ -28,15 +36,32 @@ contract WavePortal {
 
         waves.push(Wave(msg.sender, _message, block.timestamp));
 
-        emit NewWave(msg.sender, block.timestamp, _message);
+        /*
+         * Gera uma nova semente para o próximo que mandar um tchauzinho
+         */
+        seed = (block.difficulty + block.timestamp + seed) % 100;
 
-        uint256 prizeAmount = 0.0001 ether;
-        require(
-            prizeAmount <= address(this).balance,
-            "Tentando sacar mais dinheiro que o contrato possui."
-        );
-        (bool success, ) = (msg.sender).call{value: prizeAmount}("");
-        require(success, "Falhou em sacar dinheiro do contrato.");
+        console.log("# randomico gerado: %d", seed);
+
+        /*
+         * Dá 50%  de chance do usuário ganhar o prêmio.
+         */
+        if (seed <= 50) {
+            console.log("%s ganhou!", msg.sender);
+
+            /*
+             * O mesmo código que tínhamos anteriormente para enviar o prêmio.
+             */
+            uint256 prizeAmount = 0.0001 ether;
+            require(
+                prizeAmount <= address(this).balance,
+                "Tentando sacar mais dinheiro que o contrato possui."
+            );
+            (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+            require(success, "Falhou em sacar dinheiro do contrato.");
+        }
+
+        emit NewWave(msg.sender, block.timestamp, _message);
     }
 
     function getAllWaves() public view returns (Wave[] memory) {
@@ -44,7 +69,6 @@ contract WavePortal {
     }
 
     function getTotalWaves() public view returns (uint256) {
-        console.log("Temos %d tchauzinhos no total!", totalWaves);
         return totalWaves;
     }
 }
